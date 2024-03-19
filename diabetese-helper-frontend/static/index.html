@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/uikit@3.19.2/dist/css/uikit.min.css" />
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <title>DiabetesHelper</title>
+</head>
+<body>
+  
+  <ul class="uk-list uk-list-striped">
+    <script>
+      $(document).ready(function() {
+        $.ajax({
+            url: 'http://127.0.0.1:8000/measures/',  // URL of the Django backend API endpoint
+            method: 'GET',  // HTTP method (GET, POST, etc.)
+            dataType: 'json',  // Expected data type (JSON, HTML, etc.)
+            success: function(response) {
+                console.log('Received data:', response);
+                var measureData = $('.uk-list');
+                var timeText;
+                $.each(response, function(index, item) {
+                  var time = parseInt(item.time.split(':')[0]);
+                  if (time >= 6 && time < 12) {
+                    timeText = 'Morning measuring';
+                  } else if (time >= 12 && time < 18) {
+                        timeText = 'Afternoon measuring';
+                  } else if (time >= 18 && time < 22) {
+                        timeText = 'Dinner measuring';
+                  } else {
+                        timeText = 'Night measuring';
+                  }
+                  measureData.append('<p>' + timeText + ' ' + item.sugar_level + '</p>');
+                });
+            },
+        });
+
+      });
+  </script>
+
+</div>
+
+</body>
+</html>
