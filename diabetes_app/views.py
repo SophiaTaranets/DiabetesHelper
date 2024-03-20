@@ -1,7 +1,8 @@
+from django.shortcuts import render
 from rest_framework import generics
 
-from .models import SugarLevelMeasure, User, SugarLevelList
-from .serializers import SugarLevelMeasureSerializer, UserSerializer
+from .models import SugarLevelMeasure, User, SugarLevelList, Medicines
+from .serializers import SugarLevelMeasureSerializer, UserSerializer, MealTimeChoiceSerializer, MedicinesSerializer
 
 
 # to work with all measures
@@ -34,6 +35,21 @@ class SugarLevelMeasureList(generics.ListCreateAPIView):
         return sugar_list
 
 
+class MealChoicesList(generics.ListAPIView):
+    # get meals data from db as a list of tuples ('1', 'breakfast'...)
+    queryset = SugarLevelMeasure.MEAL_TIME_CHOICES.items()
+    serializer_class = MealTimeChoiceSerializer
+
+    # add logic to change tuples to dict using keys
+    def get_queryset(self):
+        return [{'key': key, 'value': value} for key, value in self.queryset]
+
+
 class UserList(generics.ListAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
+
+
+class MedicinesList(generics.ListAPIView):
+    queryset = Medicines.objects.all()
+    serializer_class = MedicinesSerializer
