@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/uikit@3.19.2/dist/css/uikit.min.css" />
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <title>Login</title>
+</head>
+<body>
+  <form id="auth" class="uk-form">
+    <div class="uk-fieldset">
+      <input type="text"  class="uk-input uk-form-width-medium" name="username" required>
+      <input type="text"  class="uk-input uk-form-width-medium" name="password" required>
+      <button class="uk-button uk-button-primary">Log in</button>
+    </div>
+  </form>
+
+  <script type="text/javascript">
+    $(document).ready(function () {
+      localStorage.clear();
+        $('#auth').submit(function(event){
+            event.preventDefault();
+            var formData = {
+                'username': $('input[name=username]').val(),
+                'password': $('input[name=password]').val()
+            };
+            $.ajax({
+                method: 'POST',
+                url: 'http://127.0.0.1:8000/login/',
+                data: formData,
+                
+                success: function (response) {
+                    $("#auth")[0].reset();
+                    console.log(response);
+                    localStorage.setItem('mytoken', response['token']);
+                    localStorage.setItem('ui', response['user_id']);
+                    alert("done!");
+                    setTimeout(() => {
+                      var redirectUrl = "http://127.0.0.1:5500/static/index.html";
+                      window.location.href = redirectUrl;
+                    }, 1000)
+                },
+            });
+        });
+    });
+</script>
+</body>
+</html>

@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/uikit@3.19.2/dist/css/uikit.min.css" />
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <title>DiabetesHelper</title>
+</head>
+<body>
+
+  <form id="post-measure-data" class="uk-form">
+    <div class="uk-fieldset">
+
+      <input type="date" name="date" class="uk-datepicker" required>
+      <input type="time" name="time" class="uk-datepicker" required>
+
+      <!-- sugar level -->
+      <div class="uk-margin">
+        <label class="uk-form-label" for="form-stacked-text">Sugar level(mg/dL)</label>
+         <div class="uk-form-controls">
+          <input name="sugar_level" class="uk-input uk-form-width-medium" type="text" placeholder="0.0" aria-label="Input" required>
+         </div>
+      </div>
+
+       <!-- meal times -->
+       <div class="uk-margin">
+        <select class="uk-select" aria-label="Select"  name="meal_time" ></select>
+       </div>
+
+      <!-- carbs -->
+      <div class="uk-margin">
+        <label class="uk-form-label" for="form-stacked-text">Carbs (grams)</label>
+        <div class="uk-form-controls">
+          <input name="carbs" class="uk-input uk-form-width-medium" type="text" placeholder="0.0" aria-label="Input">
+        </div>
+      </div>
+
+      <!-- proteins -->
+      <div class="uk-margin">
+        <label class="uk-form-label" for="form-stacked-text">Proteins (grams)</label>
+        <div class="uk-form-controls">
+          <input name="proteins" class="uk-input uk-form-width-medium" type="text" placeholder="0.0" aria-label="Input">
+        </div>
+      </div>
+
+      <!-- fats -->
+      <div class="uk-margin">
+        <label class="uk-form-label" for="form-stacked-text">Fats (grams)</label>
+        <div class="uk-form-controls">
+          <input name="fats" class="uk-input uk-form-width-medium" type="text" placeholder="0.0" aria-label="Input">
+        </div>
+      </div>
+
+      <!-- Calories -->
+      <div class="uk-margin">
+        <label class="uk-form-label" for="form-stacked-text">Calories (grams)</label>
+        <div class="uk-form-controls">
+          <input name="Calories" class="uk-input uk-form-width-medium" type="text" placeholder="0.0" aria-label="Input">
+        </div>
+      </div>
+
+      <!-- notes -->
+      <div class="uk-margin">
+        <textarea name="notes" class="uk-textarea" rows="5" placeholder="Textarea" aria-label="Textarea"></textarea>
+      </div>
+    </fieldset>
+    
+    <button class="uk-button uk-button-primary">Save</button>
+
+  </form>
+  
+  
+  <ul class="uk-list uk-list-striped"></ul>
+    <script>
+      $(document).ready(function() {
+        var t = `Token ${localStorage.getItem('mytoken')}`
+        $.ajax({
+            url: 'http://127.0.0.1:8000/measures/',  // URL of the Django backend API endpoint
+            method: 'GET',  // HTTP method (GET, POST, etc.)
+            dataType: 'json',  // Expected data type (JSON, HTML, etc.)
+            headers: {'Authorization': t},
+            success: function(response) {
+                var measureData = $('.uk-list');
+                var timeText;
+                $.each(response, function(index, item) {
+                  var time = parseInt(item.time.split(':')[0]);
+                  if (time >= 6 && time < 12) {
+                    timeText = 'Morning measuring';
+                  } else if (time >= 12 && time < 18) {
+                        timeText = 'Afternoon measuring';
+                  } else if (time >= 18 && time < 22) {
+                        timeText = 'Dinner measuring';
+                  } else {
+                        timeText = 'Night measuring';
+                  }
+                  measureData.append('<p>' + timeText + ' ' + item.sugar_level + '</p>');
+                });
+            },
+        });
+
+      });
+  </script>
+
+<script>
+  let objectDate = new Date();
+  var time = objectDate.toLocaleTimeString([], {
+        hourCycle: 'h24',
+        hour: '2-digit',
+        minute: '2-digit'
+    });
+  var date = objectDate.toLocaleDateString('sv');
+  document.querySelector('input[name="time"]').value = time;
+  document.querySelector('input[name="date"]').value = date;
+  
+</script>
+  
+
+<script>
+  $(document).ready(function() {
+    
+    var t = `Token ${localStorage.getItem('mytoken')}`
+    console.log(t)
+    $.ajax({
+        url: 'http://127.0.0.1:8000/meals/',
+        method: 'GET',
+        dataType: 'json', 
+        headers: {'Authorization': t},
+        success: function(data) {
+            var meals =  $('.uk-select');
+            // go through all data and add new option with that data to selector
+            $.each(data, function(index, item) {
+              meals.append(`<option value="${item.key}">${item.value}</option>`)
+            });
+        },
+    });
+  });
+</script>
+
+
+<script type="text/javascript">
+ $(document).ready(function () {
+  var t = `Token ${localStorage.getItem('mytoken')}`;
+  var ui_ = localStorage.getItem('ui');
+
+  $('#post-measure-data').submit(function(event){
+    event.preventDefault();
+    var serializedData = $(this).serializeArray();
+    var userID = {
+      name: 'user_id',
+      value: ui_
+    };
+    serializedData.push(userID);
+
+    // Make POST ajax call
+    $.ajax({
+      method: 'POST',
+      url: 'http://127.0.0.1:8000/measures/',
+      headers: {
+        'Authorization': t  // Correctly set the Authorization header
+      },
+      data: serializedData,
+      success: function (response) {
+        $("#post-measure-data").trigger('reset');
+        console.log(serializedData);
+        console.log(response);
+        alert("done!");
+      }
+    });
+  });
+});
+
+</script>
+
+</body>
+</html>
