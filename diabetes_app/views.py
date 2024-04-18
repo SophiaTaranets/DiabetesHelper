@@ -3,6 +3,7 @@ from allauth.socialaccount.providers.google.views import GoogleOAuth2Adapter
 from allauth.socialaccount.providers.oauth2.client import OAuth2Client
 from dj_rest_auth.registration.views import SocialLoginView
 from django.contrib.auth import authenticate, login, get_user_model
+from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import JsonResponse, HttpResponseRedirect
 from django.views.decorators.csrf import csrf_exempt
@@ -125,25 +126,5 @@ class RegisterView(APIView):
             get_user_model().objects.create_user(**serializer.validated_data)
             return Response(status=HTTP_201_CREATED)
         return Response(status=HTTP_400_BAD_REQUEST, data={'errors': serializer.errors})
-
-
-class GoogleLogin(SocialLoginView):
-    adapter_class = GoogleOAuth2Adapter
-    # The redirect URI you set on Google - https://127.0.0.1:8000/accounts/google/login/callback/
-    callback_url = 'http://127.0.0.1:8000/diabetes-helper/login/'
-    client_class = OAuth2Client
-
-    # def post(self, request, *args, **kwargs):
-    #     # Check if 'code' parameter exists in the URL
-    #     if 'code' in request.query_params:
-    #         code = request.query_params['code']
-    #         endpoint_url = 'https://127.0.0.1:8000/dj-rest-auth.google/'
-    #         data = {"code": code}
-    #         response = requests.post(endpoint_url, data=data)
-    #         # Process the response as needed
-    #         return Response(response.json(), status=response.status_code)
-    #     else:
-    #         # Redirect the user back to the login page or show an error message
-    #         return HttpResponseRedirect('/login/')
 
 

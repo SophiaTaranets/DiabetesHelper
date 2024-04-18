@@ -9,12 +9,16 @@
   <title>Login</title>
 </head>
 <body>
-  <form id="auth" class="uk-form">
+  <form id="auth" class="uk-form" method="post">
+    {% csrf_token %}
     <div class="uk-fieldset">
-      <input type="text"  class="uk-input uk-form-width-medium" name="username" required>
+      <input type="text"  class="uk-input uk-form-width-medium" name="email" required>
       <input type="text"  class="uk-input uk-form-width-medium" name="password" required>
       <button class="uk-button uk-button-primary">Log in</button>
     </div>
+    {% load socialaccount %}
+    <h2>Google Login</h2>
+    <a href="{% provider_login_url 'google' %}?next=/">Login with Google</a>
   </form>
 
   <script type="text/javascript">
@@ -23,14 +27,18 @@
         $('#auth').submit(function(event){
             event.preventDefault();
             var formData = {
-                'username': $('input[name=username]').val(),
+                'email': $('input[name=email]').val(),
                 'password': $('input[name=password]').val()
             };
+
+            var csrftoken = $('[name=csrfmiddlewaretoken]').val();
+
             $.ajax({
-                method: 'POST',
                 url: 'http://127.0.0.1:8000/login/',
+                type: 'POST',
+                headers: { "X-CSRFToken": csrftoken },
                 data: formData,
-                
+
                 success: function (response) {
                     $("#auth")[0].reset();
                     console.log(response);

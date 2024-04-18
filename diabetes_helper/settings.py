@@ -28,10 +28,12 @@ SECRET_KEY = 'django-insecure-kf=ti#pb+v#_jhi5_-j$fxf2)-0&6&hte3#kd-gz54=b-vfs#b
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = ['*', 'localhost']
 
 
 # Application definition
+
+SITE_ID = 3
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -40,23 +42,17 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'django.contrib.sites',
     'rest_framework',
     'rest_framework.authtoken',
     'dj_rest_auth',
     'dj_rest_auth.registration',
     'diabetes_app',
+    'django.contrib.sites',
     'allauth',
     'allauth.account',
     'allauth.socialaccount',
     'allauth.socialaccount.providers.google',
 
-]
-
-AUTHENTICATION_BACKENDS = [
-    'django.contrib.auth.backends.ModelBackend',
-    'allauth.account.auth_backends.AuthenticationBackend',
-    # 'diabetes_app.auth_backends.EmailBackend'
 ]
 
 SOCIALACCOUNT_PROVIDERS = {
@@ -65,21 +61,17 @@ SOCIALACCOUNT_PROVIDERS = {
             'profile',
             'email'
         ],
-        'APP': {
-            'client_id': '1058738671786-hbmqot3nb08pddbcmq9a18h918dhcddp.apps.googleusercontent.com', # in .env file
-            'secret': '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', # in .env file
-        },
         'AUTH_PARAMS': {
             'access_type': 'online',
-        }
+        },
+        # 'APP': {
+        #     'client_id': '1058738671786-hbmqot3nb08pddbcmq9a18h918dhcddp.apps.googleusercontent.com', # in .env file
+        #     'secret': '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', # in .env file
+        #     'key': ''
+        # }
     }
 }
 
-SITE_ID = 3
-
-
-LOGIN_REDIRECT_URL = '/'
-LOGOUT_REDIRECT_URL = '/'
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -104,6 +96,8 @@ CORS_ORIGIN_ALLOW_ALL = True
 ACCOUNT_EMAIL_VERIFICATION = "none"
 ROOT_URLCONF = 'diabetes_helper.urls'
 
+
+
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
@@ -112,9 +106,9 @@ TEMPLATES = [
         'OPTIONS': {
             'context_processors': [
                 'django.template.context_processors.debug',
-                'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'django.template.context_processors.request',
             ],
         },
     },
@@ -203,4 +197,13 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 AUTH_USER_MODEL = 'diabetes_app.User'
-# AUTHENTICATION_BACKENDS = ['diabetes_app.auth_backends.EmailBackend']
+
+AUTHENTICATION_BACKENDS = (
+    'django.contrib.auth.backends.ModelBackend',
+    'allauth.account.auth_backends.AuthenticationBackend',
+    # 'diabetes_app.auth_backends.EmailBackend'
+)
+
+LOGIN_URL = 'home'
+LOGIN_REDIRECT_URL = 'home'
+LOGOUT_REDIRECT_URL = '/'

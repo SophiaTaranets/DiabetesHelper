@@ -50,31 +50,31 @@ class MedicinesSerializer(serializers.ModelSerializer):
         fields =['title', 'dose']
 
 
-class GoogleAuthSerializer(serializers.Serializer):
-    auth_token = serializers.CharField()
-
-    def validate_auth_token(self, auth_token):
-        user_data = google.Google.validate(auth_token)
-        try:
-            user_data['sub']
-        except:
-            raise serializers.ValidationError(
-                'Incorrect token. Please login again.'
-            )
-
-        if user_data['aud'] != '73000166296-uj0lk401sde8b5vq1glqbr2lftrv6vbd.apps.googleusercontent.com':
-            raise AuthenticationFailed('oops, who are you?')
-
-        user_id = user_data['sub']
-        email = user_data['email']
-        username=user_data['name']
-        provider = user_data['google']
-
-        return register_social_user(
-            provider=provider,
-            user_id=user_id,
-            email=email,
-            username=username
-        )
+# class GoogleAuthSerializer(serializers.Serializer):
+#     auth_token = serializers.CharField()
+#
+#     def validate_auth_token(self, auth_token):
+#         user_data = google.Google.validate(auth_token)
+#         try:
+#             user_data['sub']
+#         except:
+#             raise serializers.ValidationError(
+#                 'Incorrect token. Please login again.'
+#             )
+#
+#         if user_data['aud'] != '73000166296-uj0lk401sde8b5vq1glqbr2lftrv6vbd.apps.googleusercontent.com':
+#             raise AuthenticationFailed('oops, who are you?')
+#
+#         user_id = user_data['sub']
+#         email = user_data['email']
+#         username=user_data['name']
+#         provider = user_data['google']
+#
+#         return register_social_user(
+#             provider=provider,
+#             user_id=user_id,
+#             email=email,
+#             username=username
+#         )
 
 

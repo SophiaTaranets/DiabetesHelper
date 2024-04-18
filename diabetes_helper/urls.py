@@ -17,16 +17,16 @@ Including another URLconf
 from django.contrib import admin
 from django.contrib.auth.views import LogoutView
 from django.urls import path, include
-
+from django.views.generic import TemplateView
 
 app_name = 'diabetes_app'
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('diabetes-helper/', include('diabetes_app.urls')),
+    path('accounts/', include('allauth.urls')),
+    path('home/', TemplateView.as_view(template_name='static/login.html'), name='home'),
+    path('', include('diabetes_app.urls')),
     path('dj-rest-auth/', include('dj_rest_auth.urls')),
     path('dj-rest-auth/registration/', include('dj_rest_auth.registration.urls')),
-    path('accounts', include('allauth.urls')),
     path('logout', LogoutView.as_view())
-    # path('', include('allauth.urls')),
 ]
