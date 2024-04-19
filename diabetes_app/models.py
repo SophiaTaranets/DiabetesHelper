@@ -42,16 +42,15 @@ class CustomUserManager(BaseUserManager):
         return self.create_user(email, password, **extra_fields)
 
 
+
+
 class User(AbstractUser):
     DIABETES_TYPES_CHOICES = [
         ('1', 'First Type'),
         ('2', 'Second Type'),
         ('3', 'Gestational diabetes'),
     ]
-    # AUTH_CHOICES = [
-    #     ('email', 'Email'),
-    #     ('google', 'Google'),
-    # ]
+
     GENDER = [
         ('MALE', 'Male'),
         ('FEMALE', 'Female'),
@@ -60,11 +59,11 @@ class User(AbstractUser):
     username = models.CharField(max_length=50)
     email = models.EmailField(('email address'), unique=True)
 
-    birth = models.DateField(null=True, default=None)
+    birth = models.DateField(null=True, blank=True)
     weight = models.FloatField(null=True, default=None)
     height = models.FloatField(null=True, default=None)
     gender = models.CharField(max_length=20, choices=GENDER, default='MALE')
-    diabetes_type = models.CharField(max_length=20, choices=DIABETES_TYPES_CHOICES, default='1')
+    diabetes_type = models.CharField(max_length=20, choices=DIABETES_TYPES_CHOICES, default='1', null=False, blank=False)
     take_medicines = models.BooleanField(default=True)
     # auth_method = models.CharField(
     #     max_length=255,
@@ -82,6 +81,32 @@ class User(AbstractUser):
 
     def __str__(self):
         return self.email
+
+class Reminder(models.Model):
+    REMINDER_TIME_CHOICES = [
+        ('1', 'Breakfast'),
+        ('2', 'Brunch'),
+        ('3', 'Snack'),
+        ('4', 'Lunch'),
+        ('5', 'Supper'),
+        ('6', 'Dinner'),
+    ]
+
+    REMINDER_DAY_CHOICES = [
+        ('1', 'Monday'),
+        ('2', 'Tuesday'),
+        ('3', 'Wednesday'),
+        ('4', 'Thursday'),
+        ('5', 'Friday'),
+        ('6', 'Saturday'),
+        ('7', 'Friday'),
+    ]
+
+    title = models.CharField(max_length=20, choices=REMINDER_TIME_CHOICES, default='1')
+    description = models.TextField(max_length=250, null=True, blank=True)
+    day = models.CharField(max_length=25, choices=REMINDER_DAY_CHOICES, default='1')
+    due_time = models.TimeField(null=False, blank=False)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
 
 
 # automatically creates list for specific user

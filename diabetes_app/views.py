@@ -18,21 +18,25 @@ from rest_framework.response import Response
 from rest_framework.settings import api_settings
 from rest_framework.status import HTTP_201_CREATED, HTTP_400_BAD_REQUEST
 from rest_framework.views import APIView
-from .models import SugarLevelMeasure, User, SugarLevelList, Medicines
+from .models import SugarLevelMeasure, User, SugarLevelList, Medicines, Reminder
 from .serializers import SugarLevelMeasureSerializer, UserSerializer, MealTimeChoiceSerializer, MedicinesSerializer, \
-    SugarListSerializer, CreateUserSerializer
-
+    SugarListSerializer, CreateUserSerializer, ReminderSerializer
+from django.core.mail import send_mail, EmailMessage
+import smtplib
 
 # to work with all measures
 class SugarLevelMeasureList(generics.ListCreateAPIView):
-    permission_classes = [IsAuthenticated,]
-    authentication_classes = [TokenAuthentication,]
+    permission_classes = [IsAuthenticated, ]
+    authentication_classes = [TokenAuthentication, ]
     # serialize data of all measures to json
     serializer_class = SugarLevelMeasureSerializer
 
     # to display data in serialized format
     def get_queryset(self):
-        return SugarLevelMeasure.objects.all()
+        queryset = SugarLevelMeasure.objects.all()
+        user_pk = self.request.user.pk
+
+        return queryset.filter(sugar_list_id_id=user_pk)
 
     def perform_create(self, serializer):
         # get sugar_list of the user
@@ -59,7 +63,15 @@ class SugarLevelMeasureList(generics.ListCreateAPIView):
     #     self.perform_create(serializer)
     #     return Response(serializer.data, status=status.HTTP_201_CREATED)
 
+class UserSugarLevelMeasure(generics.RetrieveUpdateDestroyAPIView):
+    serializer_class = SugarLevelMeasureSerializer
+    permission_classes = [IsAuthenticated, ]
+    authentication_classes = [TokenAuthentication, ]
+    def get_queryset(self):
+        queryset = SugarLevelMeasure.objects.all()
+        measure_pk = self.kwargs['pk']
 
+        return queryset.filter(id=measure_pk)
 
 class MealChoicesList(generics.ListAPIView):
     # get meals data from db as a list of tuples ('1', 'breakfast'...)
@@ -78,9 +90,72 @@ class SugarList(generics.ListAPIView):
     serializer_class = SugarListSerializer
 
 
+class UserSugarList(generics.RetrieveUpdateAPIView):
+    serializer_class = SugarListSerializer
+    http_method_names = ['get']
+
+    def get_queryset(self):
+        user_pk = self.kwargs['pk']
+        return SugarLevelList.objects.filter(user_id=user_pk)
+
 class UserList(generics.ListAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
+
+
+class ReminderList(generics.ListCreateAPIView):
+    permission_classes = [IsAuthenticated, ]
+    authentication_classes = [TokenAuthentication, ]
+    # serialize data of all measures to json
+    serializer_class = ReminderSerializer
+
+    # to display data in serialized format
+    def get_queryset(self):
+        queryset = Reminder.objects.all()
+        user_pk = self.request.user.pk
+
+        return queryset.filter(user_id=user_pk)
+
+    def create(self, request, *args, **kwargs):
+        user_id = self.request.user.pk
+
+        user = User.objects.get(id=user_id)
+        serializer = self.get_serializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save(user=user)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class ReminderItem(generics.RetrieveUpdateDestroyAPIView):
+    permission_classes = [IsAuthenticated, ]
+    authentication_classes = [TokenAuthentication, ]
+    # serialize data of all measures to json
+    serializer_class = ReminderSerializer
+
+    # to display data in serialized format
+    def get_queryset(self):
+        queryset = Reminder.objects.all()
+        reminder_id = self.kwargs['pk']
+
+        return queryset.filter(id=reminder_id)
+
+
+
+@csrf_exempt
+def send_welcome_email(request):
+    email = EmailMessage(
+        'Title',
+        'Thank you for creating an account!',
+        'olegshevchenko806@gmail.com',
+        ['sony.taranets@gmail.com']
+    )
+
+    email.send()
+    # subject = 'Sugar Measure Reminder'
+    # message = 'Thank you for creating an account!'
+    # from_email = 'olegshevchenko806@gmail.com'
+    # recipient_list = ['sony.taranets@gmail.com']
+    # send_mail(subject, message, from_email, recipient_list, fail_silently=False)
 
 
 class MedicinesList(generics.ListAPIView):
@@ -90,7 +165,6 @@ class MedicinesList(generics.ListAPIView):
 
 # send credentials to check user and get token/id
 class LoginView(ObtainAuthToken):
-
     # to render data(to json) from this view
     renderer_classes = api_settings.DEFAULT_RENDERER_CLASSES
     authentication_classes = []

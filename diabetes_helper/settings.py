@@ -33,7 +33,7 @@ ALLOWED_HOSTS = ['*', 'localhost']
 
 # Application definition
 
-SITE_ID = 3
+SITE_ID = 5
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -126,10 +126,10 @@ DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql",
         "NAME": "ST_DIABETES_HELPER",
-        "USER": "postgres",
-        "PASSWORD": "PythonUnit2509!",
+        "USER": "igor_mol",
+        "PASSWORD": "2345123rogi",
         "HOST": "127.0.0.1",
-        "PORT": "5433",
+        "PORT": "5432",
     }
 }
 
@@ -204,6 +204,18 @@ AUTHENTICATION_BACKENDS = (
     # 'diabetes_app.auth_backends.EmailBackend'
 )
 
-LOGIN_URL = 'home'
+# LOGIN_URL = 'home'
 LOGIN_REDIRECT_URL = 'home'
 LOGOUT_REDIRECT_URL = '/'
+
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_USE_SSL = False
+EMAIL_HOST_USER = 'olegshevchenko806@gmail.com'
+EMAIL_HOST_PASSWORD = 'fjmiilphimrwemri'
+
+
+# fjmi ilph imrw emri
